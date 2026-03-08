@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>idea2Build</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0d0d0d;
+            --surface: #161616;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --orange: #FF9900;
+            --orange-hover: #e68a00;
+            --green: #22c55e;
+            --text: #e5e5e5;
+            --muted: #888;
+            --tag-mvp: #166534;
+            --tag-mvp-text: #4ade80;
+            --tag-post: #292524;
+            --tag-post-text: #a8a29e;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .app-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #0d0d0d;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .new-idea-btn {
+            background: #FF9900;
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .new-idea-btn:hover {
+            background: #e68a00;
+        }
+
+        .sidebar-history-title {
+            padding: 0 20px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-history-list::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .sidebar-history-list div {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: background 0.2s;
+            color: #ccc;
+        }
+
+        .sidebar-history-list div:hover {
+            background: rgba(255, 153, 0, 0.05);
+        }
+
+        .sidebar-history-list div.active {
+            color: #FF9900;
+            background: rgba(255, 153, 0, 0.1);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge-aws {
+            font-size: 11px;
+            color: var(--muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .page-nav {
+            display: flex;
+            gap: 4px;
+            background: var(--surface2);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .page-nav button {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .page-nav button.active {
+            background: var(--orange);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .page {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        #chat-page {
+            flex-direction: row;
+        }
+
+        .chat-panel {
+            width: 42%;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: var(--surface);
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gatekeeper-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--orange), #ff6600);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .chat-header-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .chat-header-info span {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .msg {
+            display: flex;
+            gap: 10px;
+            max-width: 88%;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .msg.ai .msg-avatar {
+            background: linear-gradient(135deg, var(--orange), #ff6600);
+        }
+
+        .msg.user .msg-avatar {
+            background: #3b3b3b;
+        }
+
+        .msg-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.55;
+        }
+
+        .msg.ai .msg-bubble {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-top-left-radius: 4px;
+        }
+
+        .msg.user .msg-bubble {
+            background: var(--orange);
+            color: #000;
+            font-weight: 500;
+            border-top-right-radius: 4px;
+        }
+
+        .feature-tags-bubble {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            border-top-left-radius: 4px;
+            padding: 12px 14px;
+            font-size: 13px;
+        }
+
+        .feature-tags-bubble .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            color: var(--muted);
+        }
+
+        .feature-tags-bubble .mvp-label {
+            color: var(--tag-mvp-text);
+        }
+
+        .feature-tags-bubble .post-label {
+            color: var(--tag-post-text);
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tag.mvp {
+            background: var(--tag-mvp);
+            color: var(--tag-mvp-text);
+        }
+
+        .tag.post {
+            background: var(--tag-post);
+            color: var(--tag-post-text);
+            border: 1px solid #3d3935;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .tag.mvp {
+            background: var(--tag-mvp);
+            color: var(--tag-mvp-text);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 0 20px 0 58px;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            border-top-left-radius: 4px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--muted);
+            animation: bounce 1.2s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0)
+            }
+
+            30% {
+                transform: translateY(-6px)
+            }
+        }
+
+        .chat-input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input-area textarea {
+            flex: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text);
+            font-size: 13.5px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            max-height: 120px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input-area textarea:focus {
+            border-color: var(--orange);
+        }
+
+        .send-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--orange);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: var(--orange-hover);
+        }
+
+        .send-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #000;
+        }
+
+        .artifact-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        .artifact-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            padding: 0 16px;
+        }
+
+        .artifact-tab {
+            padding: 12px 16px;
+            font-size: 12.5px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .artifact-tab.active {
+            color: var(--orange);
+            border-bottom-color: var(--orange);
+        }
+
+        .artifact-tab .tab-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--orange);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .artifact-tab.has-content .tab-dot {
+            opacity: 1;
+        }
+
+        .artifact-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #d4d4d4;
+        }
+
+        .artifact-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .artifact-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .artifact-placeholder {
+            color: var(--muted);
+            text-align: center;
+            margin-top: 80px;
+            font-family: inherit;
+        }
+
+        .gatekeeper-warning {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(255, 165, 0, 0.12);
+            border-left: 3px solid #f5a623;
+            border-radius: 4px;
+            color: #f5a623;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .artifact-placeholder .icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .artifact-placeholder p {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .md-h2 {
+            color: var(--orange);
+            font-size: 15px;
+            font-weight: 700;
+            margin: 20px 0 8px;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .md-h3 {
+            color: #e5e5e5;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin: 14px 0 6px;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .md-p {
+            color: #a0a0a0;
+            margin-bottom: 6px;
+        }
+
+        .md-li {
+            color: #a0a0a0;
+            margin-left: 16px;
+            margin-bottom: 4px;
+            list-style: none;
+        }
+
+        .md-li::before {
+            content: "- ";
+            color: var(--orange);
+        }
+
+        .inline-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .inline-tag.mvp {
+            background: var(--tag-mvp);
+            color: var(--tag-mvp-text);
+        }
+
+        .inline-tag.post {
+            background: var(--tag-post);
+            color: var(--tag-post-text);
+            border: 1px solid #3d3935;
+        }
+
+        .md-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0;
+        }
+
+        .artifact-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .export-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--orange);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .export-btn:hover {
+            background: var(--orange-hover);
+        }
+
+        .export-btn:disabled {
+            background: #333;
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        #dashboard-page {
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 24px;
+            gap: 20px;
+            background: var(--bg);
+        }
+
+        #dashboard-page::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #dashboard-page::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .dashboard-banner {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-banner h2 {
+            font-size: 20px;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .mvp-locked-badge {
+            background: #166534;
+            color: #4ade80;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .powered-by {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .powered-by b {
+            color: var(--orange);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* User Profile Styles */
+        .user-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            grid-column: 1 / -1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tier-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        .tier-free {
+            background: #333;
+            color: #fff;
+        }
+
+        .tier-premium {
+            background: var(--orange);
+            color: #000;
+        }
+
+        .profile-bio {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .usage-container {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .usage-bar {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .usage-fill {
+            height: 100%;
+            background: var(--orange);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .usage-text {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .upgrade-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+
+        .upgrade-btn:hover {
+            opacity: 0.9;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title span {
+            color: var(--text);
+        }
+
+        .problem-text {
+            background: var(--surface2);
+            border-left: 3px solid var(--orange);
+            padding: 14px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.65;
+            color: #c0c0c0;
+        }
+
+        .feature-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .feature-col-header {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-col-header.mvp-h {
+            color: var(--tag-mvp-text);
+        }
+
+        .feature-col-header.post-h {
+            color: var(--tag-post-text);
+        }
+
+        .feature-item {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+
+        .feature-item .feat-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .feature-item .feat-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .gatekeeper-note {
+            background: #1a1200;
+            border: 1px solid #3d2e00;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #f59e0b;
+            margin-top: 8px;
+        }
+
+        .gatekeeper-note::before {
+            content: "Gatekeeper: ";
+            font-weight: 700;
+        }
+
+        .arch-flow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 16px;
+            background: var(--surface2);
+            border-radius: 8px;
+        }
+
+        .arch-chip {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .arch-arrow {
+            color: var(--orange);
+            font-size: 16px;
+        }
+
+        .dashboard-download-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .dl-btn {
+            padding: 13px;
+            border-radius: 10px;
+            background: var(--orange);
+            border: none;
+            color: #000;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .dl-btn:hover {
+            background: var(--orange-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Razorpay JS SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg viewBox="0 0 28 28" fill="none">
+                        <circle cx="8" cy="14" r="5" fill="#FF9900" />
+                        <circle cx="20" cy="14" r="5" fill="#FF9900" opacity="0.6" />
+                    </svg>
+                    idea2Build
+                </div>
+                <button onclick="newIdea()" class="new-idea-btn">+ New Idea</button>
+            </div>
+            <div class="sidebar-history-title">Session History</div>
+            <div class="sidebar-history-list" id="project-history-list">
+                <!-- populated by JS -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <div class="header-actions">
+                    <span class="badge-aws">⚡ Powered by AWS Bedrock</span>
+                    <div class="page-nav">
+                        <button class="active" onclick="switchPage('chat', this)">Chat</button>
+                        <button onclick="switchPage('dashboard', this)">Dashboard</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CHAT PAGE -->
+            <div id="chat-page" class="page active">
+                <div class="chat-panel">
+                    <div class="chat-header">
+                        <div class="gatekeeper-avatar">🛡</div>
+                        <div class="chat-header-info">
+                            <h3>AI MVP Gatekeeper</h3>
+                            <span><span class="status-dot"></span>Online · AWS Bedrock Claude</span>
+                        </div>
+                    </div>
+
+                    <div class="messages" id="messages">
+                        <div class="msg ai">
+                            <div class="msg-avatar">🛡</div>
+                            <div class="msg-bubble">Hey! I'm your MVP Gatekeeper. Tell me your idea — describe it in
+                                plain
+                                words, no need to be technical.</div>
+                        </div>
+                    </div>
+
+                    <div class="typing-indicator" id="typing">
+                        <div class="typing-dots"><span></span><span></span><span></span></div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <textarea id="chat-input" rows="1" placeholder="Describe your idea..."
+                            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                        <button class="send-btn" onclick="sendMessage()">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M2 21l21-9L2 3v7l15 2-15 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="artifact-panel">
+                    <div class="artifact-tabs">
+                        <button class="artifact-tab active" id="tab-req" onclick="switchTab('req')">
+                            <span class="tab-dot"></span>requirements.md
+                        </button>
+                        <button class="artifact-tab" id="tab-design" onclick="switchTab('design')">
+                            <span class="tab-dot"></span>design.md
+                        </button>
+                        <button class="artifact-tab" id="tab-mvp" onclick="switchTab('mvp')">
+                            <span class="tab-dot"></span>mvp-plan.md
+                        </button>
+                        <button class="artifact-tab" id="tab-plan" onclick="switchTab('plan')">
+                            <span class="tab-dot"></span>Plan (MVP vs Post-MVP)
+                        </button>
+
+                    </div>
+                    <div class="artifact-content" id="artifact-content">
+                        <div class="artifact-placeholder">
+                            <div class="icon">📄</div>
+                            <p>Your artifacts will appear here<br />as the conversation progresses.</p>
+                        </div>
+                    </div>
+                    <div class="artifact-footer" style="display: flex; gap: 10px;">
+                        <button class="export-btn" id="export-btn" disabled onclick="exportFiles()"
+                            style="flex: 1;">Export Files</button>
+                        <button class="export-btn" id="scaffold-btn" disabled onclick="downloadScaffold()"
+                            style="flex: 1; background: #22c55e;">Download Starter Code</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD PAGE -->
+            <div id="dashboard-page" class="page">
+                <div class="dashboard-banner">
+                    <div>
+                        <h2 id="db-project-name">Project Dashboard</h2>
+                        <div id="db-project-subtitle" style="font-size:14px; color:#aaa; margin-top:4px;">Build with
+                            clarity.</div>
+                    </div>
+                    <span class="mvp-locked-badge" id="db-locked-badge" style="display:none;">MVP SCOPE LOCKED</span>
+                    <span class="powered-by">Generated by <b>idea2Build</b> powered by AWS Bedrock</span>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- User Profile Card -->
+                    <div class="user-profile-card" id="user-profile-card">
+                        <div class="profile-avatar" id="db-avatar" style="background: #FF9900;">A</div>
+                        <div class="profile-info">
+                            <div class="profile-name">
+                                <span id="db-display-name">Anonymous User</span>
+                                <span class="tier-badge tier-free" id="db-tier-badge">FREE</span>
+                            </div>
+                            <div class="profile-bio" id="db-bio">Software Engineer & Builder</div>
+
+                            <div class="usage-container" id="db-usage-container">
+                                <div class="usage-bar">
+                                    <div class="usage-fill" id="db-usage-fill"></div>
+                                </div>
+                                <div class="usage-text">
+                                    <span>API Usage</span>
+                                    <span id="db-usage-text">0 / 50 calls</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="upgrade-btn" id="db-upgrade-btn" onclick="startRazorpayCheckout()">
+                            <span>💎</span> Upgrade to Premium
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><span>Problem Statement</span></div>
+                        <div class="problem-text" id="db-problem">
+                            <span style="color:#666; font-style:italic; font-size:13px;">Generate a plan in the chat to
+                                see your project problem statement here.</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="grid-row: span 2;">
+                        <div class="card-title">
+                            <span>Feature Breakdown</span>
+                            &nbsp;<span id="db-cut-count" style="color:#f59e0b; font-size:12px;"></span>
+                        </div>
+                        <div class="feature-cols">
+                            <div>
+                                <div class="feature-col-header mvp-h">✅ MVP Features</div>
+                                <div id="db-mvp-features">
+                                    <span style="color:#666; font-style:italic; font-size:12px;">No MVP features defined
+                                        yet.</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="feature-col-header post-h">🔒 Post-MVP Features</div>
+                                <div id="db-post-features">
+                                    <span style="color:#666; font-style:italic; font-size:12px;">No Post-MVP features
+                                        defined yet.</span>
+                                </div>
+                                <div class="gatekeeper-note" id="db-gatekeeper-note" style="display:none;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title"><span>Architecture</span></div>
+                        <div class="arch-flow" id="db-arch-flow">
+                            <span style="color:#666; font-style:italic; font-size:12px;">Waiting for architecture
+                                plan...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 153, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--orange);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    <script>
+        const API_BASE = window.IDEA2BUILD_API_URL || 'http://idea2build.us-east-1.elasticbeanstalk.com';
+        // Razorpay handles its own initialization with the dynamically obtained key
+
+        function generateID() {
+            return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'id_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        let SESSION_ID = localStorage.getItem('i2b_session') || generateID();
+        // Use a persistent test user ID for now
+        let USER_ID = localStorage.getItem('i2b_user') || 'user_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('i2b_session', SESSION_ID);
+        localStorage.setItem('i2b_user', USER_ID);
+
+        let activeTab = 'req';
+        let artifacts = { req: null, design: null, mvp: null };
+        let planData = {
+            mvp: null,
+            post_mvp: null,
+            workplan: null
+        };
+
+
+        function switchPage(page, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.page-nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(page + '-page').classList.add('active');
+
+            if (btn) {
+                btn.classList.add('active');
+            } else {
+                // Find matching nav button by text
+                document.querySelectorAll('.page-nav button').forEach(b => {
+                    const label = b.textContent.trim().toLowerCase();
+                    if (label === page) b.classList.add('active');
+                });
+            }
+
+            if (page === 'dashboard') {
+                loadUserProfile();
+            } else if (page === 'chat') {
+                renderArtifact(activeTab);
+            }
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.artifact-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            renderArtifact(tab);
+        }
+
+        async function renderArtifact(tab) {
+            const content = document.getElementById('artifact-content');
+
+            if (tab === 'plan') {
+                if (!planData.mvp && !planData.post_mvp && !planData.workplan) {
+                    content.innerHTML = `
+                <div class="artifact-placeholder">
+                  <div class="icon">📄</div>
+                  <p>Your plan will appear here<br>once the Gatekeeper has enough context.</p>
+                </div>`;
+                    return;
+                }
+                content.innerHTML = renderPlanHtml(planData);
+                return;
+            }
+
+            if (!artifacts[tab]) {
+                content.innerHTML = `
+            <div class="artifact-placeholder">
+              <div class="icon">📄</div>
+              <p>This artifact will appear<br>once the conversation is complete.</p>
+            </div>`;
+                return;
+            }
+
+            // Artifacts contains the S3 Presigned URL. We need to fetch the text, then render it.
+            if (artifacts[tab].startsWith('http')) {
+                content.innerHTML = '<div style="padding:40px; text-align:center; color:#aaa;"><div class="spinner"></div><div>Fetching document...</div></div>';
+                try {
+                    const res = await fetch(artifacts[tab]);
+                    const text = await res.text();
+                    content.innerHTML = markdownToHtml(text);
+                } catch (e) {
+                    content.innerHTML = '<div style="color:red; padding:20px;">Failed to load document content.</div>';
+                }
+            } else {
+                // Fallback if it's already raw text
+                content.innerHTML = markdownToHtml(artifacts[tab]);
+            }
+        }
+
+        function renderPlanHtml(plan) {
+            const mvp = plan.mvp || {};
+            const post = plan.post_mvp || {};
+            const work = plan.workplan || {};
+
+            const mvpAreas = (mvp.areas || []).map(a => `
+        <div class="feature-item">
+          <div class="feat-name">${a.area}</div>
+          <div class="feat-desc">${(a.items || []).join(', ')}</div>
+        </div>
+    `).join('');
+
+            const postAreas = (post.areas || []).map(a => `
+        <div class="feature-item">
+          <div class="feat-name">${a.area}</div>
+          <div class="feat-desc">${(a.items || []).join(', ')}<br><span style="color:#a8a29e;font-size:11px;">Reason: ${a.reason || ''}</span></div>
+        </div>
+    `).join('');
+
+            const weeks = (work.weeks || []).map(w => `
+        <div class="feature-item">
+          <div class="feat-name">${w.label} – ${w.goal || ''}</div>
+          <div class="feat-desc">
+            ${(w.tasks || []).map(t => `<div><b>${t.owner || 'Owner'}:</b> ${t.task}</div>`).join('')}
+          </div>
+        </div>
+    `).join('');
+
+            return `
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-title"><span>MVP Plan</span></div>
+          <div class="problem-text">
+            <b>Problem:</b> ${mvp.problem || ''}<br>
+            <b>Riskiest assumption:</b> ${mvp.riskiest_assumption || ''}
+          </div>
+          <div class="feature-cols">
+            <div>
+              <div class="feature-col-header mvp-h">MVP Features</div>
+              ${mvpAreas || '<div class="feat-desc">No MVP features listed yet.</div>'}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>Post-MVP</span></div>
+          <div class="feature-cols">
+            <div>
+              <div class="feature-col-header post-h">Later features</div>
+              ${postAreas || '<div class="feat-desc">No post-MVP features listed yet.</div>'}
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / span 2;">
+          <div class="card-title"><span>Workplan</span></div>
+          <div class="problem-text">
+            <b>Timeframe:</b> ${work.timeframe || ''} &nbsp;&nbsp;
+            <b>Team:</b> ${work.team || ''}
+          </div>
+          ${weeks || '<div class="feat-desc" style="padding:8px 0 0 0;">No workplan yet.</div>'}
+        </div>
+      </div>
+    `;
+        }
+
+        function markdownToHtml(md) {
+            md = md.replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
+            return md
+                .replace(/^## (.+)$/gm, '<div class="md-h2">$1</div><hr class="md-divider"/>')
+                .replace(/^### (.+)$/gm, '<div class="md-h3">$1</div>')
+                .replace(/\[MVP\]/g, '<span class="inline-tag mvp">MVP</span>')
+                .replace(/\[POST-MVP\]/g, '<span class="inline-tag post">Post-MVP</span>')
+                .replace(/^- (.+)$/gm, '<div class="md-li">$1</div>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^(?!<div|<hr)(.+)$/gm, '<div class="md-p">$1</div>');
+        }
+
+
+        function handleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        }
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+
+        function renderMessage(role, content, isTagBubble = false) {
+            const msgs = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'msg ' + role;
+            const avatar = document.createElement('div');
+            avatar.className = 'msg-avatar';
+            avatar.textContent = role === 'ai' ? '🛡' : '👤';
+            const bubble = document.createElement('div');
+            if (isTagBubble) {
+                bubble.innerHTML = content;
+            } else {
+                bubble.className = 'msg-bubble';
+                bubble.textContent = content;
+            }
+            div.appendChild(avatar);
+            div.appendChild(bubble);
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            input.style.height = 'auto';
+
+            renderMessage('user', text);
+            showTyping(true);
+
+            try {
+                // POST /api/chat → { session_id, message }
+                // Response: { reply, tag_bubble, artifacts_ready, artifacts }
+                const res = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: SESSION_ID, message: text, user_id: USER_ID })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.reply || "Backend error");
+                }
+
+                showTyping(false);
+                renderMessage('ai', data.reply);
+
+                if (data.tag_bubble) {
+                    const mvpTags = data.tag_bubble.mvp_features.map(f => `<span class="tag mvp">${f}</span>`).join('');
+                    const postTags = data.tag_bubble.post_mvp_features.map(f => `<span class="tag post">${f}</span>`).join('');
+                    const warningNote = data.gatekeeper_note
+                        ? `<div class="gatekeeper-warning">⚠️ ${data.gatekeeper_note}</div>`
+                        : '';
+                    const html = `<div class="feature-tags-bubble">
+                <div class="section-label mvp-label">MVP Features</div>
+                <div class="tags-row">${mvpTags}</div>
+                <div class="section-label post-label">Post-MVP Features</div>
+                <div class="tags-row">${postTags}</div>
+                ${warningNote}
+                </div>`;
+                    renderMessage('ai', html, true);
+                }
+                planData.mvp = data.mvp || planData.mvp;
+                planData.post_mvp = data.post_mvp || planData.post_mvp;
+                planData.workplan = data.workplan || planData.workplan;
+
+                // Mark Plan tab as having content
+                if (data.mvp || data.post_mvp || data.workplan) {
+                    document.getElementById('tab-plan').classList.add('has-content');
+                    if (activeTab === 'plan') {
+                        renderArtifact('plan');
+                    }
+                }
+
+
+                if (data.artifacts_ready && data.artifacts) {
+                    artifacts = data.artifacts;
+                    saveProjectToHistory(SESSION_ID, text);
+                    document.getElementById('export-btn').disabled = false;
+                    document.getElementById('scaffold-btn').disabled = false;
+                    ['req', 'design', 'mvp'].forEach(t => {
+                        if (artifacts[t]) document.getElementById('tab-' + t).classList.add('has-content');
+                    });
+                    renderArtifact(activeTab);
+                }
+
+            } catch (err) {
+                showTyping(false);
+                renderMessage('ai', 'API Providers temporarily unavailable — loading demo mode as fallback.');
+                loadDemoArtifacts();
+            }
+        }
+
+        function showTyping(show) {
+            document.getElementById('typing').classList.toggle('show', show);
+            document.getElementById('messages').scrollTop = 99999;
+        }
+
+        async function exportFiles() {
+            const types = ['requirements', 'design', 'mvp-plan'];
+            const titleRaw = document.getElementById('db-project-name').textContent || 'Project';
+            // Clean title and truncate to max 20 characters so filenames aren't excessively long
+            let prefix = titleRaw === 'Project Dashboard' ? 'Project' : titleRaw.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            if (prefix.length > 20) prefix = prefix.substring(0, 20).replace(/_+$/, '');
+
+            for (const t of types) {
+                try {
+                    const res = await fetch(`${API_BASE}/api/download/${SESSION_ID}/${t}`);
+                    const { url } = await res.json();
+
+                    const fileRes = await fetch(url);
+                    const blob = await fileRes.blob();
+                    const objectUrl = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = objectUrl;
+                    a.download = `${prefix}_${t}.md`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(objectUrl);
+
+                } catch {
+                    alert('Export failed. Check backend connection.');
+                }
+            }
+        }
+
+        async function downloadScaffold() {
+            const titleRaw = document.getElementById('db-project-name').textContent || 'Project';
+            let prefix = titleRaw === 'Build with clarity.' ? 'Project' : titleRaw.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            if (prefix.length > 20) prefix = prefix.substring(0, 20).replace(/_+$/, '');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/download/${SESSION_ID}/scaffold`);
+                const blob = await res.blob();
+                const objectUrl = window.URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = objectUrl;
+                a.download = `${prefix}_starter.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(objectUrl);
+            } catch {
+                alert('Starter code download failed. Check backend connection.');
+            }
+        }
+
+        function downloadFile(type) {
+            const titleRaw = document.getElementById('db-project-subtitle').textContent || 'Project';
+            let prefix = titleRaw === 'Project Dashboard' ? 'Project' : titleRaw.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            if (prefix.length > 20) prefix = prefix.substring(0, 20).replace(/_+$/, '');
+
+            fetch(`${API_BASE}/api/download/${SESSION_ID}/${type}`)
+                .then(r => r.json())
+                .then(({ url }) => {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${prefix}_${type}.md`;
+                    a.target = '_blank';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                })
+                .catch(() => alert('Download failed. Check backend connection.'));
+        }
+
+        function loadDemoArtifacts() {
+            artifacts.req = `## Problem Statement
+College students often struggle to find internships aligned with their career goals.
+
+## Functional Requirements
+- Student profile creation [MVP]
+- Internship listings with search and filters [MVP]
+- One-click apply with resume submission [MVP]
+- AI-based job matching [POST-MVP]
+- Resume builder [POST-MVP]
+- Analytics dashboard [POST-MVP]
+
+## Non-Functional Requirements
+- Response time under 2 seconds
+- 99.9% uptime SLA
+- GDPR-compliant data handling`;
+
+            artifacts.design = `## Architecture Overview
+AWS-native serverless architecture optimized for hackathon context.
+
+## Components
+- **API Gateway** — REST entry point, rate limited to 1000 req/min
+- **Lambda Orchestrator** — stateless compute, handles all routing
+- **Amazon Bedrock** — MVP Gatekeeper + Doc Generator (Claude Haiku + Sonnet)
+- **DynamoDB** — Session state store, TTL 24 hours
+- **S3** — Artifact storage with presigned URL access
+
+## Fallback Strategy
+- Primary: Bedrock Claude Sonnet 4.6
+- Fallback: Amazon Nova Pro
+- Hard fallback: Cached demo artifacts from S3`;
+
+            artifacts.mvp = `## MVP Execution Plan
+
+### Phase 1 — Infrastructure (Day 1 Morning)
+- Setup API Gateway + Lambda function
+- Configure DynamoDB table with session TTL
+- Setup S3 bucket with CORS for frontend
+
+### Phase 2 — Intelligence (Day 1 Afternoon)
+- Implement Bedrock chat integration
+- Write MVP Gatekeeper system prompt
+### Phase 3 — Frontend (Day 2)
+- Chat interface with artifact panel
+- Dashboard view with feature breakdown
+- Export buttons wired to presigned URLs`;
+
+            planData = {
+                mvp: {
+                    problem: "Students struggling to find internships.",
+                    areas: [
+                        { area: "User Profiles", items: ["Student Creation", "Resume Upload"] },
+                        { area: "Job Board", items: ["Listing Search", "Filters"] }
+                    ]
+                },
+                post_mvp: {
+                    areas: [
+                        { area: "AI Matching", items: ["Smart Recommendations"], reason: "Too complex for MVP" }
+                    ]
+                },
+                workplan: {
+                    timeframe: "48 Hours",
+                    team: "Solo Dev",
+                    weeks: [
+                        { label: "Day 1", tasks: [{ owner: "Dev", task: "Setup backend & frontend" }] }
+                    ]
+                }
+            };
+            document.getElementById('export-btn').disabled = false;
+            document.getElementById('scaffold-btn').disabled = false;
+            ['req', 'design', 'mvp'].forEach(t => document.getElementById('tab-' + t).classList.add('has-content'));
+            renderArtifact(activeTab);
+        }
+
+
+        // Session history management
+        function saveProjectToHistory(sessionId, ideaSummary) {
+            // Re-render history which will fetch latest from backend 
+            // since the backend `chat` endpoint already adds/updates the session title.
+            setTimeout(renderHistory, 1000);
+        }
+
+        async function renderHistory() {
+            const list = document.getElementById('project-history-list');
+            if (!list) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/user/${USER_ID}/sessions`);
+            const data = await res.json();
+            const history = data.sessions || [];
+
+            if (history.length === 0) {
+                list.innerHTML = '<div style="color:#666; font-size:12px; padding:8px;">No previous projects</div>';
+                return;
+            }
+
+            list.innerHTML = history.map(p => `
+            <div onclick="loadSession('${p.session_id}')" class="history-item ${p.session_id === SESSION_ID ? 'active' : ''}">
+                ${p.title.substring(0, 35)}${p.title.length > 35 ? '...' : ''}
+            </div>
+        `).join('');
+
+            const currentSessionMeta = history.find(h => h.session_id === SESSION_ID);
+            if (currentSessionMeta) {
+                document.getElementById('db-project-subtitle').textContent = currentSessionMeta.title || 'Build with clarity.';
+            }
+
+        } catch (err) {
+            console.error("Failed to load history:", err);
+            list.innerHTML = '<div style="color:red; font-size:12px; padding:8px;">Failed to load history</div>';
+        }
+        }
+
+
+        async function loadSession(sessionId) {
+            SESSION_ID = sessionId;
+            localStorage.setItem('i2b_session', sessionId);
+
+            // Clear current chat and state
+            const msgsDiv = document.getElementById('messages');
+            msgsDiv.innerHTML = '<div class="msg"><div class="msg-bubble" style="display:flex; align-items:center; gap:10px;"><div class="spinner" style="margin:0;"></div>Loading session...</div></div>';
+
+            artifacts = { req: null, design: null, mvp: null };
+            planData = { mvp: null, post_mvp: null, workplan: null };
+
+            try {
+                const res = await fetch(`${API_BASE}/api/session/${sessionId}`);
+                if (!res.ok) {
+                    if (res.status === 404) throw new Error("Session not found");
+                    throw new Error(`Server returned status ${res.status}`);
+                }
+                const session = await res.json();
+
+                // Only switch page if we successfully loaded an existing session
+                switchPage('chat');
+
+                msgsDiv.innerHTML = ''; // clear loading text
+
+                // Hydrate plan data from session context
+                if (session.context) {
+                    planData.mvp = session.context.mvp || null;
+                    planData.post_mvp = session.context.post_mvp || null;
+                    planData.workplan = session.context.workplan || null;
+                }
+
+                // Replay messages
+                if (session.messages && session.messages.length > 0) {
+                    session.messages.forEach(m => renderMessage(m.role, m.content));
+                } else {
+                    msgsDiv.innerHTML = `
+            <div class="msg ai">
+                <div class="msg-avatar">🛡</div>
+                <div class="msg-bubble">Hey! I'm your MVP Gatekeeper. Tell me your idea — describe it in plain words, no need to be technical.</div>
+            </div>`;
+                }
+
+                // If the session has already completed the plan stage, we should ideally fetch the artifacts.
+                // For simplicity, we can just check if they are ready and let the user click 'export' or if we had them stored in the session object we'd load them here.
+                if (session.artifacts_ready) {
+                    document.getElementById('export-btn').disabled = false;
+                    document.getElementById('scaffold-btn').disabled = false;
+                    // Fully re-hydrate artifacts from backend DB to prevent wiping
+                    if (session.artifacts) {
+                        artifacts = session.artifacts;
+                        ['req', 'design', 'mvp'].forEach(t => {
+                            if (artifacts[t]) document.getElementById('tab-' + t).classList.add('has-content');
+                        });
+                    }
+                } else {
+                    document.getElementById('export-btn').disabled = true;
+                    document.getElementById('scaffold-btn').disabled = true;
+                }
+
+                renderArtifact(activeTab);
+                renderHistory();
+
+            } catch (err) {
+                console.error(err);
+                if (err.message === "Session not found") {
+                    // This happens if a user starts a New Idea (creating a UUID in localStorage) 
+                    // but refreshes the page BEFORE sending their first message. 
+                    // It doesn't exist in DynamoDB yet, so just start a fresh UI state natively.
+                    msgsDiv.innerHTML = `
+            <div class="msg ai">
+                <div class="msg-avatar">🛡</div>
+                <div class="msg-bubble">Hey! I'm your MVP Gatekeeper. Tell me your idea — describe it in plain words, no need to be technical.</div>
+            </div>`;
+                } else {
+                    msgsDiv.innerHTML = `<div class="msg"><div class="msg-bubble" style="background:var(--surface2); border:1px solid #ff4444;">Error loading session: ${err.message}. Please check your backend connection.</div></div>`;
+                }
+            }
+        }
+        function newIdea() {
+            SESSION_ID = generateID();
+            localStorage.setItem('i2b_session', SESSION_ID);
+            document.getElementById('messages').innerHTML = `
+        <div class="msg ai">
+            <div class="msg-avatar">🛡</div>
+            <div class="msg-bubble">Hey! I'm your MVP Gatekeeper. Tell me your idea — describe it in plain words, no need to be technical.</div>
+        </div>`;
+            artifacts = { req: null, design: null, mvp: null };
+            document.getElementById('export-btn').disabled = true;
+            document.getElementById('scaffold-btn').disabled = true;
+            ['req', 'design', 'mvp'].forEach(t => document.getElementById('tab-' + t).classList.remove('has-content'));
+            renderArtifact(activeTab);
+            renderHistory();
+            planData = { mvp: null, post_mvp: null, workplan: null };
+            document.getElementById('db-project-subtitle').textContent = 'Build with clarity.';
+            switchPage('chat');
+        }
+        // --- User Profile & Stripe Authentication ---
+
+        async function loadUserProfile() {
+            try {
+                // Fetch user data
+                const res = await fetch(`${API_BASE}/api/user/${USER_ID}`);
+                const user = await res.json();
+
+                // Fetch usage
+                const useRes = await fetch(`${API_BASE}/api/user/${USER_ID}/usage`);
+                const usage = await useRes.json();
+
+                // Update DOM elements
+                document.getElementById('db-display-name').textContent = user.display_name || 'Anonymous User';
+                document.getElementById('db-bio').textContent = user.bio || 'New Idea Builder';
+
+                const avatar = document.getElementById('db-avatar');
+                avatar.style.background = user.avatar_color || '#FF9900';
+                avatar.textContent = (user.display_name || 'A').charAt(0).toUpperCase();
+
+                const tierBadge = document.getElementById('db-tier-badge');
+                const upgradeBtn = document.getElementById('db-upgrade-btn');
+                const usageContainer = document.getElementById('db-usage-container');
+
+                if (usage.plan === 'premium') {
+                    tierBadge.textContent = 'PREMIUM';
+                    tierBadge.className = 'tier-badge tier-premium';
+                    upgradeBtn.style.display = 'none';
+                    usageContainer.innerHTML = '<div style="font-size:12px;color:var(--orange);">Unlimited API calls active 🚀</div>';
+                } else {
+                    tierBadge.textContent = 'FREE';
+                    tierBadge.className = 'tier-badge tier-free';
+                    upgradeBtn.style.display = 'flex';
+
+                    // Update usage bar
+                    const pct = Math.min(100, (usage.used / usage.limit) * 100);
+                    document.getElementById('db-usage-fill').style.width = pct + '%';
+                    document.getElementById('db-usage-text').textContent = `${usage.used} / ${usage.limit} API calls`;
+                }
+
+                // Load dashboard plan data
+                if (planData.mvp) {
+                    document.getElementById('db-problem').innerHTML = `<b>Problem:</b> ${planData.mvp.problem || 'Not specified'}`;
+                }
+
+            } catch (err) {
+                console.error("Failed to load user profile:", err);
+            }
+        }
+
+        async function startRazorpayCheckout() {
+            try {
+                const btn = document.getElementById('db-upgrade-btn');
+                btn.innerHTML = '<span>⏳</span> Loading...';
+                btn.disabled = true;
+
+                const res = await fetch(`${API_BASE}/api/create-checkout-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: USER_ID })
+                });
+
+                const data = await res.json();
+
+                if (data.order_id) {
+                    var options = {
+                        "key": data.key_id,
+                        "amount": data.amount,
+                        "currency": data.currency,
+                        "name": "Idea2Build",
+                        "description": "Premium Upgrade",
+                        "order_id": data.order_id,
+                        "handler": function (response) {
+                            // Confirm upgrade on backend after successful payment
+                            fetch(`${API_BASE}/api/user/${USER_ID}/upgrade`, { method: 'POST' })
+                                .then(res => res.json())
+                                .then(() => {
+                                    alert("Payment successful! You are now on the Premium tier.");
+                                    if (document.getElementById('dashboard-page').classList.contains('active')) {
+                                        loadUserProfile();
+                                    }
+                                })
+                                .catch(e => console.error("Error finalizing upgrade", e));
+                        },
+                        "prefill": {
+                            "name": document.getElementById('db-display-name')?.textContent || "User",
+                            "contact": "9999999999" // Dummy value for testing
+                        },
+                        "theme": {
+                            "color": "#FF9900"
+                        },
+                        "modal": {
+                            "ondismiss": function () {
+                                btn.innerHTML = '<span>💎</span> Upgrade to Premium';
+                                btn.disabled = false;
+                            }
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.on('payment.failed', function (response) {
+                        alert("Payment Failed: " + response.error.description);
+                    });
+                    rzp.open();
+                } else {
+                    throw new Error(data.error || "Failed to create Razorpay session");
+                }
+            } catch (err) {
+                alert("Checkout error: " + err.message);
+                const btn = document.getElementById('db-upgrade-btn');
+                btn.innerHTML = '<span>💎</span> Upgrade to Premium';
+                btn.disabled = false;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Also load session history on startup
+            renderHistory();
+
+            // Hydrate the chat window so history isn't lost on refresh
+            if (localStorage.getItem('i2b_session')) {
+                loadSession(localStorage.getItem('i2b_session'));
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
