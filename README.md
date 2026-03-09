@@ -2,12 +2,12 @@
 
 idea2Build is an AI-powered MVP (Minimum Viable Product) generation platform. It helps founders, developers, and product managers shape their rough ideas into comprehensive MVP scopes and technical plans, utilizing AWS Bedrock for advanced AI generation.
 
-![App Screenshot Placeholder](<img width="1919" height="865" alt="Screenshot 2026-03-08 234959" src="https://github.com/user-attachments/assets/7a34689e-bfc6-47cc-ad68-250b1a47a95b" />
-)
+<img width="1919" height="865" alt="Screenshot 2026-03-08 234959" src="https://github.com/user-attachments/assets/7a34689e-bfc6-47cc-ad68-250b1a47a95b" />
 
 
-![Architecture Diagram Placeholder](<img width="1309" height="709" alt="image" src="https://github.com/user-attachments/assets/ff96aa3d-968f-4aa5-abd3-9b5633bfce29" />
-)
+
+<img width="1309" height="709" alt="image" src="https://github.com/user-attachments/assets/ff96aa3d-968f-4aa5-abd3-9b5633bfce29" />
+
 
 
 ## Features
@@ -60,4 +60,5 @@ http://idea2build-public-app.s3-website-us-east-1.amazonaws.com/
 
 ## Deployment
 For a highly detailed, step-by-step guide on deploying this application to AWS (including Bedrock model subscription, Elastic Beanstalk API hosting, and S3 Static Website hosting), please refer to the [Deployment Guide](guidetodeployment.md).
+
 
